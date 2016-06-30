@@ -3,6 +3,7 @@ var path = require('path');
 
 module.exports = {
   entry: [
+    // 'webpack/hot/dev-server',
     './index.js'
   ],
   output: {
@@ -10,4 +11,11 @@ module.exports = {
     filename: 'bundle.js',
     publicPath: "/static/",
   },
+  plugins: [
+    new webpack.HotModuleReplacementPlugin()
+  ],
+  devServer: {
+    hot: true,
+    inline: true,
+  }
 };
