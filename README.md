@@ -293,6 +293,14 @@ IMPORTANT: According to the official documentation
 
 However, HMR must work with `inline: true` flags without commandline arguments in practice.
 
+To avoid refresh the whole page, adding following code to entry file:
+
+~~~JavaScript
+if (module.hot) {
+  module.hot.accept();
+}
+~~~
+
 Much more see [Webpack dev Sever](http://webpack.github.io/docs/webpack-dev-server.html)
 and [Hot Module Replacement with Webpack](http://webpack.github.io/docs/hot-module-replacement-with-webpack.html)
 
@@ -311,8 +319,8 @@ We can access environment variables through `process.env.Name`, this helps a lot
 * [Webpack your bags](https://blog.madewithlove.be/post/webpack-your-bags/)
 
 * [what is webpack](http://webpack.github.io/docs/what-is-webpack.html)
-* [using-loaders](http://webpack.github.io/docs/using-loaders.html)
 * [configuration](http://webpack.github.io/docs/configuration.html)
+* [using-loaders](http://webpack.github.io/docs/using-loaders.html)
 * [list of loaders](http://webpack.github.io/docs/list-of-loaders.html)
 * [list of plugins](http://webpack.github.io/docs/list-of-plugins.html)
 * [Shimming modules](http://webpack.github.io/docs/shimming-modules.html)
