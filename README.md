@@ -3,7 +3,8 @@
 Some simple codes for studying webpack, README.md is the study note.
 
 **NOTE**:
-- In order to make webpack.config.js portable, please use path.resolve, Linux path separator is not recognized in Windows.
+- In order to make webpack.config.js portable, please use `path.resolve`/`path.join`, Linux path separator is not recognized in Windows.
+- Don't use relative path, relative path is not middleware friendly.
 - webpack gets poor error reporter, `--display-error-details` can give you more details.
 - `--progress` is a little helpful.
 
@@ -247,7 +248,10 @@ Note: It's allowed to omit the callback.
 see [code splitting](http://webpack.github.io/docs/code-splitting.html) and [stylesheets#separate CSS bundle](http://webpack.github.io/docs/stylesheets.html#separate-css-bundle) for details.
 
 
-# webpack-dev-server and Hot Module Replace
+# Hot Module Replace
+
+
+## webpack-dev-server
 
 To enable HMR for `webpack-dev-server` two conditions must be met:
 1. use either `HotModuleReplacementPlugin` in configuration or `--hot` option, never both at the same time as in that case, _the HMR plugin will actually be added twice, breaking the setup._
@@ -258,6 +262,7 @@ So the easiest way is to use `webpack-dev-server --hot --inline`.
 You should see the following messages in the browser log:
 
 > [HMR] Waiting for update signal from WDS...
+>
 > [WDS] Hot Module Replacement enabled.
 
 
@@ -303,6 +308,59 @@ if (module.hot) {
 
 Much more see [Webpack dev Sever](http://webpack.github.io/docs/webpack-dev-server.html)
 and [Hot Module Replacement with Webpack](http://webpack.github.io/docs/hot-module-replacement-with-webpack.html)
+
+
+## webpack-hot-middleware
+
+Someone don't want to use `webpack-dev-server`, `webpack-hot-middleware` is a good choice. Here is what you should do:
+
+1. add `webpack-hot-middleware/client` into the `entry` array.
+2. add the following plugins to the `plugins` array:
+
+ ~~~JavaScript
+ // for Webpack 1.0
+ new webpack.optimize.OccurenceOrderPlugin(),
+ // Webpack 2.0 fixed this mispelling
+ // new webpack.optimize.OccurrenceOrderPlugin(),
+ new webpack.HotModuleReplacementPlugin(),
+ new webpack.NoErrorsPlugin()
+~~~
+3. add `webpack-dev-middleware` the usual way.
+4. add `webpack-hot-middleware` attached to the same compiler instance.
+
+ ~~~JavaScript
+ app.use(require("webpack-hot-middleware")(compiler));
+ ~~~
+
+That's all. For example:
+
+~~~JavaScript
+var webpack = require('webpack')
+var webpackDevMiddleware = require('webpack-dev-middleware')
+var webpackHotMiddleware = require('webpack-hot-middleware')
+var config = require("./webpack.config.hot-middleware.js")
+
+var app = new (require('express'))()
+const port = config.devServer && config.devServer.port || 3000
+const host = config.devServer && config.devServer.host || 'localhost'
+
+var compiler = webpack(config)
+app.use(webpackDevMiddleware(compiler, { noInfo: true, publicPath: config.output.publicPath }))
+app.use(webpackHotMiddleware(compiler))
+
+app.use(function(req, res) {
+  res.sendFile(__dirname + '/index.html')
+})
+
+app.listen(port, function(error) {
+  if (error) {
+    console.error(error)
+  } else {
+    console.info("==> Listening on port %s. Open up http://%s:%s/ in your browser.", port, host, port)
+  }
+})
+
+~~~
 
 
 # Environment variables in webpack
